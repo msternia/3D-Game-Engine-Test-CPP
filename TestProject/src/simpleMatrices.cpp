@@ -55,33 +55,45 @@ void Matrix::display() {
 
 
 
-bool mDotP(Matrix &mn, Matrix &np, Matrix &mp) {
+bool matrixMultiply(Matrix &mn, Matrix &np, Matrix &mp) {
+
+	for (int m = 0; m < mp.returnRows(); m++) {
+		for (int p = 0; p < mp.returnColumns(); p++) {
+			mp.set(m, p) = 0;
+		}
+	}
+
 	if (mn.returnColumns() == np.returnRows() && mp.returnRows() == mn.returnRows() && mp.returnColumns() == np.returnColumns()) {
 
-		for (int x = 0; x < mn.returnRows(); x++) {
-			for (int y = 0; y < np.returnColumns(); y++) {
+		for (int m = 0; m < mn.returnRows(); m++) {
+			for (int p = 0; p < np.returnColumns(); p++) {
 
-				for (int z = 0; z < np.returnRows(); z++) {
+				for (int n = 0; n < np.returnRows(); n++) {
 
-					mp.set(x, y) += mn.get(x, z) * np.get(z, y);
+					mp.set(m, p) += mn.get(m, n) * np.get(n, p);
 
 				}
 
 			}
 		}
 
-
-		return 1;
+		return true;
 	}
-	else {
-
-		std::cout << mn.returnColumns() << ", " << np.returnRows() << std::endl;
-		std::cout << mp.returnRows() << ", " << mn.returnRows() << std::endl;
-		std::cout << np.returnColumns() << ", " << mp.returnColumns() << std::endl;
-
-		return 0;
-	}
-	return 0;
+	else return false;
 }
 
+bool copyMatrixContents(Matrix &original, Matrix &copy) {
+
+	if (original.returnColumns() == copy.returnColumns() && original.returnRows() == copy.returnRows()) {
+		for (int i = 0; i < original.returnRows(); i++) {
+			for (int u = 0; u < original.returnColumns(); u++) {
+				copy.set(i, u) = original.get(i, u);
+			}
+		}
+
+		return true;
+	}
+	else return false;
+
+}
 

@@ -2,10 +2,14 @@
 #include <string>
 #include <Windows.h>
 #include <tchar.h>
+#include <math.h>
 #include "simpleMatrices.h"
+#include "graphicsProcessing.h"
 
 
 // https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program?source=recommendations
+
+bool applyProject(Matrix& obj, int column, Matrix& m);
 
 LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lparam);
 float ts = 0.9f;
@@ -20,57 +24,69 @@ namespace colour{
     COLORREF currentColour = green;
 }
 
-BOOL paint(HWND hwnd, Matrix &display) {
-    PAINTSTRUCT ps;
-    HDC hdc = BeginPaint(hwnd, &ps);
-    HBRUSH brush = CreateSolidBrush(colour::red);
-    FillRect(hdc, &ps.rcPaint, CreateSolidBrush(colour::white));
 
+
+
+BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, Matrix& display) {
+    HBRUSH brush = CreateSolidBrush(colour::red);
+    
     GetClientRect(hwnd, &ps.rcPaint);
 
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < display.returnRows(); i++) {
+        for (int u = 0; u < display.returnColumns(); u++) {
+            display.set(i, u) = (int) round(display.get(i, u));
+        }
+    }
+    
+    for (int i = 0; i < display.returnColumns(); i++) {
+        display.set(0, i) += ps.rcPaint.right / 2;
+        display.set(1, i) += ps.rcPaint.bottom / 2;
+    }
+    
+   
     //front
-    MoveToEx(hdc, display.get(0, 0), display.get(1, 0), NULL);
-    LineTo(hdc, display.get(0, 2), display.get(1, 2));
-    LineTo(hdc, display.get(0, 4), display.get(1, 4));
-    LineTo(hdc, display.get(0, 1), display.get(1, 1));
-    LineTo(hdc, display.get(0, 0), display.get(1, 0));
+    MoveToEx(hdc, (int)display.get(0, 0), (int)display.get(1, 0), NULL);
+    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
+    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
+    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
+    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
 
     //left
-    LineTo(hdc, display.get(0, 3), display.get(1, 3));
-    LineTo(hdc, display.get(0, 6), display.get(1, 6));
-    LineTo(hdc, display.get(0, 2), display.get(1, 2));
-    LineTo(hdc, display.get(0, 0), display.get(1, 0));
-    
+    LineTo(hdc, (int)display.get(0, 3), (int)display.get(1, 3));
+    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
+    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
+    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
+
     //bottom
-    LineTo(hdc, display.get(0, 3), display.get(1, 3));
-    LineTo(hdc, display.get(0, 5), display.get(1, 5));
-    LineTo(hdc, display.get(0, 1), display.get(1, 1));
-    LineTo(hdc, display.get(0, 0), display.get(1, 0));
+    LineTo(hdc, (int)display.get(0, 3), (int)display.get(1, 3));
+    LineTo(hdc, (int)display.get(0, 5), (int)display.get(1, 5));
+    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
+    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
 
-    
+
     //back
-    MoveToEx(hdc, display.get(0, 7), display.get(1, 7), NULL);
-    LineTo(hdc, display.get(0, 6), display.get(1, 6));
-    LineTo(hdc, display.get(0, 2), display.get(1, 2));
-    LineTo(hdc, display.get(0, 4), display.get(1, 4));
-    LineTo(hdc, display.get(0, 7), display.get(1, 7));
-    
-    //right
-    LineTo(hdc, display.get(0, 5), display.get(1, 5));
-    LineTo(hdc, display.get(0, 1), display.get(1, 1));
-    LineTo(hdc, display.get(0, 4), display.get(1, 4));
-    LineTo(hdc, display.get(0, 7), display.get(1, 7));
-    
-    //top
-    LineTo(hdc, display.get(0, 4), display.get(1, 4));
-    LineTo(hdc, display.get(0, 2), display.get(1, 2));
-    LineTo(hdc, display.get(0, 6), display.get(1, 6));
-    LineTo(hdc, display.get(0, 7), display.get(1, 7));
-    }
-    EndPaint(hwnd, &ps);
+    MoveToEx(hdc, (int)display.get(0, 7), (int)display.get(1, 7), NULL);
+    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
+    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
+    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
+    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
 
-    return 1;
+    //right
+    LineTo(hdc, (int)display.get(0, 5), (int)display.get(1, 5));
+    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
+    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
+    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
+
+    //top
+    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
+    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
+    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
+    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
+
+    SelectObject(hdc, brush);
+
+
+    return true;
 }
 
 
@@ -83,7 +99,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wnd.hInstance = hInstance;
     wnd.lpszClassName = wndName;
     wnd.cbSize = sizeof(WNDCLASSEX);
-
+    
     RegisterClassEx(&wnd);
 
     HWND hwnd = CreateWindowEx(
@@ -117,14 +133,14 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     
     MSG msg = { };
-    SetTimer(hwnd, 0, 5, NULL);
+    SetTimer(hwnd, 0, 50, NULL);
     while (GetMessage(&msg, hwnd, 0, 0) != 0)
     {   
         TranslateMessage(&msg);
         DispatchMessage(&msg);
 
     }
-    return 0;
+    return false;
 }
 
 
@@ -137,25 +153,25 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             std::cout << "Test" << std::endl;
             DestroyWindow(hwnd);
             PostQuitMessage(0);
-            return 1;
+            return true;
         }
         case WM_LBUTTONDOWN:
         {
             std::cout << "Stop touching me!" << std::endl;
             colour::currentColour = colour::red;
             InvalidateRect(hwnd, NULL, true);
-            return 1;
+            return true;
         }
         case WM_CREATE:
         {   
-            return 1;
+            return true;
         }
         case WM_LBUTTONUP:
         {
             std::cout << "Thank you!" << std::endl;
             colour::currentColour = colour::green;
             InvalidateRect(hwnd, NULL, true);
-            return 1;
+            return true;
         }
         case WM_PAINT:
         {
@@ -171,105 +187,44 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             cube.set(0, 5) = 1; cube.set(1, 5) = 0; cube.set(2, 5) = 1; cube.set(3, 5) = 1;
             cube.set(0, 6) = 0; cube.set(1, 6) = 1; cube.set(2, 6) = 1; cube.set(3, 6) = 1;
             cube.set(0, 7) = 1; cube.set(1, 7) = 1; cube.set(2, 7) = 1; cube.set(3, 7) = 1;
-
-            cube.display();
             
-            Matrix projection(4, 4);
-            float fNear = 0.1f;
-            float fFar = 1000.0f;
-            float fFov = 90.0f;
-            float fAspectRatio = (float) client.bottom / (float) client.right;
-            std::cout << fAspectRatio << std::endl;
-            float fFOVRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159265359f);
 
-            projection.set(0, 0) = fAspectRatio * fFOVRad;
-            projection.set(1, 1) = fFOVRad;
-            projection.set(2, 2) = -((fFar + fNear) / (fFar - fNear));
-            projection.set(2, 3) = -(2 * (fNear * fFar) / (fFar - fNear));
-            projection.set(3, 2) = -1;
+            mTranslate(cube, -0.5, -0.5, 0.5);
 
-            std::cout << "projection" << std::endl;
-            projection.display();
+            Matrix cube2(4, 8);
+            Matrix cube3(4, 8);
+            copyMatrixContents(cube, cube2);
+            copyMatrixContents(cube, cube3);
 
-            Matrix translate(4, 4);
-            translate.set(0, 3) = 1.0f;
-            translate.set(1, 3) = 1.0f;
-            translate.set(2, 3) = 3.0f;
+            mRotate(cube, 90 * ts, 0, 0);
+            mRotate(cube2, 0, 90 * ts, 0);
+            mRotate(cube3, 0, 0, 90 * ts);
 
-            translate.set(1, 1) = 1;
-            translate.set(0, 0) = 1;
-            translate.set(2, 2) = 1;
-            translate.set(3, 3) = 1;
+            mTranslate(cube, 0, 0, -3);
+            mTranslate(cube2, -2, 0, -3);
+            mTranslate(cube3, 2, 0, -3);
 
-            std::cout << "translate" << std::endl;
-            translate.display();
-
-            Matrix yRotation(4, 4);
-
-            yRotation.set(0, 0) = cos(1.0f * ts);
-            yRotation.set(1, 1) = 1;
-            yRotation.set(0, 2) = sin(1.0f * ts);
-            yRotation.set(2, 2) = cos(1.0f * ts);
-            yRotation.set(2, 1) = -sin(1.0f * ts);
-            yRotation.set(3, 3) = 1;
-
-            Matrix xRotation(4, 4);
-
-            xRotation.set(0, 0) = 1;
-            xRotation.set(1, 1) = cos(1.0f * ts);
-            xRotation.set(2, 1) = sin(1.0f * ts);
-            xRotation.set(2, 2) = cos(1.0f * ts);
-            xRotation.set(1, 2) = -sin(1.0f * ts);
-            xRotation.set(3, 3) = 1;
-
-            //xRotation.set(0, 3) = 30.0f;
-            //xRotation.set(1, 3) = 10.0f;
-
-            Matrix scale(4, 4);
-            scale.set(0, 0) += 1;
-            scale.set(1, 1) += 1;
-            scale.set(0, 0) *= 0.1f * client.right;
-            scale.set(1, 1) *= 0.1f * client.bottom;
-
-            scale.set(2, 2) = 1;
-            scale.set(3, 3) = 1;
-
-            Matrix txCube(4, 8);
-            Matrix xCube(4, 8);
-            mDotP(translate, cube, txCube);
-
-            translate.set(0, 3) = 6.0f;
-            translate.set(1, 3) = 5.0f;
-            mDotP(xRotation, txCube, xCube);
-
-            Matrix rCube(4, 8);
-            mDotP(yRotation, xCube, rCube);
-
-            Matrix tRCube(4, 8);
-            mDotP(translate, rCube, tRCube);
-
-            std::cout << "pTCube" << std::endl;
-            tRCube.display();
-
-            Matrix pTRCube(4, 8);
-            mDotP(projection, tRCube, pTRCube);
-
-            std::cout << "pTRCube" << std::endl;
-            pTRCube.display();
-
-            Matrix display(4, 8);
-            mDotP(scale, pTRCube, display);
-            
-            std::cout << "display" << std::endl;
-            display.display();
+            projectToScreen(cube, client.right, client.bottom);
+            projectToScreen(cube2, client.right, client.bottom);
+            projectToScreen(cube3, client.right, client.bottom);
 
 
-            return paint(hwnd, display);
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            FillRect(hdc, &ps.rcPaint, CreateSolidBrush(colour::white));
+
+            paint(hwnd, hdc, ps, cube);
+            paint(hwnd, hdc, ps, cube2);
+            paint(hwnd, hdc, ps, cube3);
+
+            EndPaint(hwnd, &ps);
+            return true;
         }
         case WM_TIMER:
         {   
             ts += 0.05f;
             InvalidateRect(hwnd, NULL, true);
+            return true;
         }
         default:
         {

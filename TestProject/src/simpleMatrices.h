@@ -11,14 +11,19 @@ class Matrix {
 	public:
 		Matrix(int x, int y);
 		~Matrix();
+
 		float get(int x, int y);
 		float& set(int x, int y);
+
 		int returnRows();
 		int returnColumns();
+
 		void display();
 };
 
-bool mDotP(Matrix &mn, Matrix &np, Matrix &mp);
+bool matrixMultiply(Matrix &mn, Matrix &np, Matrix &mp);
+
+bool copyMatrixContents(Matrix &original, Matrix &copy);
 
 #else
 #endif
