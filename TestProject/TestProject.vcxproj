@@ -130,11 +130,13 @@
   <ItemGroup>
     <ClCompile Include="src\graphicsProcessing.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\objects.cpp" />
     <ClCompile Include="src\simpleMatrices.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\graphicsProcessing.h" />
-    <ClInclude Include="src\simpleMatrices.h" />
+    <ClInclude Include="headers\graphicsProcessing.h" />
+    <ClInclude Include="headers\objects.h" />
+    <ClInclude Include="headers\simpleMatrices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

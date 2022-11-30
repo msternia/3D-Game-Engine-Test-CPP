@@ -1,29 +1,11 @@
 #ifndef _GRAPHICSPROCESSING
 #define _GRAPHICSPROCESSING
-#define gPI 3.14159265359
 
 #include <math.h>
-#include "graphicsProcessing.h"
+#include "..\headers\graphicsProcessing.h"
 
 #else
 #endif
-
-Camera::Camera(Matrix &m, float w, float h) : projection(m), width(w), height(h){
-
-	float fNear = 0.1f;
-	float fFar = 1000.0f;
-	float fFov = 90.0f;
-	float fAspectRatio = h / w;
-	float fFOVRad = 1.0f / tanf(fFov * 0.5f / 180.0f * gPI);
-
-
-	m.set(0, 0) = fAspectRatio * fFOVRad;
-	m.set(1, 1) = fAspectRatio * fFOVRad;
-	m.set(2, 2) = fFar / (fFar - fNear);
-	m.set(2, 3) = 1.0f;
-	m.set(3, 2) = -fNear * fFar / (fFar - fNear);
-
-}
 
 bool mTranslate(Matrix &m, float x, float y, float z) {
 	if (m.returnRows() == 4) {
@@ -73,28 +55,28 @@ bool mRotate(Matrix &m, float xAxisDeg, float yAxisDeg, float zAxisDeg) {
 	Matrix xRotation(4, 4);
 
 	xRotation.set(0, 0) = 1;
-	xRotation.set(1, 1) = cos((xAxisDeg * gPI)/ 180);
-	xRotation.set(2, 1) = -sin((xAxisDeg * gPI) / 180);
-	xRotation.set(2, 2) = cos((xAxisDeg * gPI) / 180);
-	xRotation.set(1, 2) = sin((xAxisDeg * gPI) / 180);
+	xRotation.set(1, 1) = cosf((xAxisDeg * gPI)/ 180);
+	xRotation.set(2, 1) = -sinf((xAxisDeg * gPI) / 180);
+	xRotation.set(2, 2) = cosf((xAxisDeg * gPI) / 180);
+	xRotation.set(1, 2) = sinf((xAxisDeg * gPI) / 180);
 	xRotation.set(3, 3) = 1;
 
 	Matrix yRotation(4, 4);
 
-	yRotation.set(0, 0) = cos((yAxisDeg * gPI) / 180);
+	yRotation.set(0, 0) = cosf((yAxisDeg * gPI) / 180);
 	yRotation.set(1, 1) = 1;
-	yRotation.set(0, 2) = -sin((yAxisDeg * gPI) / 180);
-	yRotation.set(2, 2) = cos((yAxisDeg * gPI) / 180);
-	yRotation.set(2, 0) = sin((yAxisDeg * gPI) / 180);
+	yRotation.set(0, 2) = -sinf((yAxisDeg * gPI) / 180);
+	yRotation.set(2, 2) = cosf((yAxisDeg * gPI) / 180);
+	yRotation.set(2, 0) = sinf((yAxisDeg * gPI) / 180);
 	yRotation.set(3, 3) = 1;
 
 	Matrix zRotation(4, 4);
 
-	zRotation.set(0, 0) = cos((zAxisDeg * gPI) / 180);
-	zRotation.set(1, 1) = cos((zAxisDeg * gPI) / 180);
-	zRotation.set(1, 0) = sin((zAxisDeg * gPI) / 180);
+	zRotation.set(0, 0) = cosf((zAxisDeg * gPI) / 180);
+	zRotation.set(1, 1) = cosf((zAxisDeg * gPI) / 180);
+	zRotation.set(1, 0) = sinf((zAxisDeg * gPI) / 180);
 	zRotation.set(2, 2) = 1;
-	zRotation.set(0, 1) = -sin((zAxisDeg * gPI) / 180);
+	zRotation.set(0, 1) = -sinf((zAxisDeg * gPI) / 180);
 	zRotation.set(3, 3) = 1;
 
 	Matrix xOut(m.returnRows(), m.returnColumns());
@@ -117,7 +99,7 @@ bool projectToScreen(Matrix& m, int scWidth, int scHeight) {
 
 	Matrix projection(4, 4);
 	float fNear = 1.0f;
-	float fFar = 1000.0f;
+	float fFar = 1000.0f; 
 	float fFov = 90.0f;
 	float fAspectRatio = (float) scHeight / (float) scWidth;
 	float fFOVRad = 1.0f / tanf(fFov * 0.5f / 180.0f * gPI);

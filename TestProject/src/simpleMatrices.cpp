@@ -1,7 +1,7 @@
 #ifndef _SIMPLEMATRICES
 #define _SIMPLEMATRICES
 
-#include "simpleMatrices.h"
+#include "..\headers\simpleMatrices.h"
 #include <iostream>
 
 #else

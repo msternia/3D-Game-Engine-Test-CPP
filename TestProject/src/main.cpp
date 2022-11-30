@@ -3,13 +3,13 @@
 #include <Windows.h>
 #include <tchar.h>
 #include <math.h>
-#include "simpleMatrices.h"
-#include "graphicsProcessing.h"
-
-
-// https://learn.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program?source=recommendations
-
-bool applyProject(Matrix& obj, int column, Matrix& m);
+#include <vector>
+#include <string>
+#include <fstream>
+#include <filesystem>
+#include "..\headers\simpleMatrices.h"
+#include "..\headers\graphicsProcessing.h"
+#include "..\headers\objects.h"
 
 LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lparam);
 float ts = 0.9f;
@@ -23,9 +23,6 @@ namespace colour{
 
     COLORREF currentColour = green;
 }
-
-
-
 
 BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, Matrix& display) {
     HBRUSH brush = CreateSolidBrush(colour::red);
@@ -89,6 +86,40 @@ BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, Matrix& display) {
     return true;
 }
 
+BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, GameObject& display) {
+    HBRUSH brush = CreateSolidBrush(colour::red);
+
+    GetClientRect(hwnd, &ps.rcPaint);
+
+    for (int i = 0; i < display.obj->returnRows(); i++) {
+        for (int u = 0; u < display.obj->returnColumns(); u++) {
+            display.obj->set(i, u) = (int) round(display.obj->get(i, u));
+        }
+    }
+
+    for (int i = 0; i < display.obj->returnColumns(); i++) {
+        display.obj->set(0, i) += ps.rcPaint.right / 2;
+        display.obj->set(1, i) += ps.rcPaint.bottom / 2;
+    }
+
+    SelectObject(hdc, brush);
+
+    for (int i = 0; i < display.faceCount; i++) {
+        int v1 = display.objFaces[i].vertex[0];
+        int v2 = display.objFaces[i].vertex[1];
+        int v3 = display.objFaces[i].vertex[2];
+
+        std::cout << "1: " << v1 << "2: " << v2 << "3: " << v3 << std::endl;
+
+        MoveToEx(hdc, display.obj->get(0, v1), display.obj->get(1, v1), NULL);
+        LineTo(hdc, display.obj->get(0, v2), display.obj->get(1, v2));
+        LineTo(hdc, display.obj->get(0, v3), display.obj->get(1, v3));
+        LineTo(hdc, display.obj->get(0, v1), display.obj->get(1, v1));
+    }
+
+
+    return true;
+}
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, INT nCmdShow) {
 	const wchar_t wndName[] = L"Test";
@@ -178,6 +209,15 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             RECT client = {};
             GetClientRect(hwnd, &client);
 
+            std::filesystem::path cwd = std::filesystem::current_path() / "src" / "models";
+            std::filesystem::path cubeFile = cwd / "teapot.obj";
+
+            GameObject testCube(cubeFile.string());
+            mTranslate(*testCube.obj, -0.5, -0.5, 0.5);
+            mRotate(*testCube.obj, 0, 180 * ts, 0);
+            mTranslate(*testCube.obj, 0, 0, -7);
+            projectToScreen(*testCube.obj, client.right, client.bottom);
+
             Matrix cube(4, 8);
             cube.set(0, 0) = 0; cube.set(1, 0) = 0; cube.set(2, 0) = 0; cube.set(3, 0) = 1;
             cube.set(0, 1) = 1; cube.set(1, 1) = 0; cube.set(2, 1) = 0; cube.set(3, 1) = 1;
@@ -188,6 +228,7 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             cube.set(0, 6) = 0; cube.set(1, 6) = 1; cube.set(2, 6) = 1; cube.set(3, 6) = 1;
             cube.set(0, 7) = 1; cube.set(1, 7) = 1; cube.set(2, 7) = 1; cube.set(3, 7) = 1;
             
+
 
             mTranslate(cube, -0.5, -0.5, 0.5);
 
@@ -213,9 +254,10 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             HDC hdc = BeginPaint(hwnd, &ps);
             FillRect(hdc, &ps.rcPaint, CreateSolidBrush(colour::white));
 
-            paint(hwnd, hdc, ps, cube);
-            paint(hwnd, hdc, ps, cube2);
-            paint(hwnd, hdc, ps, cube3);
+            paint(hwnd, hdc, ps, testCube);
+            //paint(hwnd, hdc, ps, cube);
+            //paint(hwnd, hdc, ps, cube2);
+            //paint(hwnd, hdc, ps, cube3);
 
             EndPaint(hwnd, &ps);
             return true;

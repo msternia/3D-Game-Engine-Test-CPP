@@ -24,13 +24,22 @@
     <ClCompile Include="src\simpleMatrices.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\objects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\simpleMatrices.h">
+    <ClInclude Include="headers\simpleMatrices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphicsProcessing.h">
+    <ClInclude Include="headers\graphicsProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\objects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\cube.obj" />
   </ItemGroup>
 </Project>
