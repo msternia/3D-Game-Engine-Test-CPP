@@ -13,7 +13,5 @@ bool mScale(Matrix &m, float x, float y, float z);
 
 bool mRotate(Matrix &m, float xAxis, float yAxis, float zAxis);
 
-bool projectToScreen(Matrix &m, int scWidth, int scHeight);
-
 #else
 #endif

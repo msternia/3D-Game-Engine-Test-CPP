@@ -1,6 +1,6 @@
 #ifndef _OBJECTS_H
 #define _OBJECTS_H
-#include "simpleMatrices.h";
+#include "simpleMatrices.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -10,7 +10,7 @@
 typedef struct tagTriangle {
 
 	float vertex[3];
-	float normal;
+	float normal[3];
 
 } Triangle, * pTriangle;
 
@@ -26,17 +26,19 @@ class GameObject {
 		~GameObject();
 
 		bool importObj(std::string path);
+		bool calculateNormals();
 };
 
 class Camera {
-	public:
+	private:
 		Matrix projection;
+	public:
 
-		float width;
-		float height;
+		float x, y, z;
 
-		Camera(Matrix& m, float w, float h);
+		Camera(int scW, int scH);
 		~Camera();
+		bool projectToScreen(Matrix& m, int scW, int scH);
 };
 #else
 #endif 

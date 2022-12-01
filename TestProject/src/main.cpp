@@ -14,81 +14,22 @@
 LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lparam);
 float ts = 0.9f;
 
+Camera* c;
+bool keys[4]= { false, false, false, false};
+
 namespace colour{
     const COLORREF red = 0x000000FF;
     const COLORREF green = 0x0000FF00;
     const COLORREF purple = 0x00FF00FF;
     const COLORREF yellow = 0x0000FFFF;
     const COLORREF white = 0x00FFFFFF;
+    const COLORREF black = 0x00000000;
 
     COLORREF currentColour = green;
 }
 
-BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, Matrix& display) {
-    HBRUSH brush = CreateSolidBrush(colour::red);
-    
-    GetClientRect(hwnd, &ps.rcPaint);
-
-    for (int i = 0; i < display.returnRows(); i++) {
-        for (int u = 0; u < display.returnColumns(); u++) {
-            display.set(i, u) = (int) round(display.get(i, u));
-        }
-    }
-    
-    for (int i = 0; i < display.returnColumns(); i++) {
-        display.set(0, i) += ps.rcPaint.right / 2;
-        display.set(1, i) += ps.rcPaint.bottom / 2;
-    }
-    
-   
-    //front
-    MoveToEx(hdc, (int)display.get(0, 0), (int)display.get(1, 0), NULL);
-    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
-    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
-    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
-    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
-
-    //left
-    LineTo(hdc, (int)display.get(0, 3), (int)display.get(1, 3));
-    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
-    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
-    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
-
-    //bottom
-    LineTo(hdc, (int)display.get(0, 3), (int)display.get(1, 3));
-    LineTo(hdc, (int)display.get(0, 5), (int)display.get(1, 5));
-    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
-    LineTo(hdc, (int)display.get(0, 0), (int)display.get(1, 0));
-
-
-    //back
-    MoveToEx(hdc, (int)display.get(0, 7), (int)display.get(1, 7), NULL);
-    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
-    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
-    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
-    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
-
-    //right
-    LineTo(hdc, (int)display.get(0, 5), (int)display.get(1, 5));
-    LineTo(hdc, (int)display.get(0, 1), (int)display.get(1, 1));
-    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
-    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
-
-    //top
-    LineTo(hdc, (int)display.get(0, 4), (int)display.get(1, 4));
-    LineTo(hdc, (int)display.get(0, 2), (int)display.get(1, 2));
-    LineTo(hdc, (int)display.get(0, 6), (int)display.get(1, 6));
-    LineTo(hdc, (int)display.get(0, 7), (int)display.get(1, 7));
-
-    SelectObject(hdc, brush);
-
-
-    return true;
-}
-
 BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, GameObject& display) {
-    HBRUSH brush = CreateSolidBrush(colour::red);
-
+    HBRUSH brush = CreateSolidBrush(colour::white);
     GetClientRect(hwnd, &ps.rcPaint);
 
     for (int i = 0; i < display.obj->returnRows(); i++) {
@@ -102,19 +43,20 @@ BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, GameObject& display) {
         display.obj->set(1, i) += ps.rcPaint.bottom / 2;
     }
 
-    SelectObject(hdc, brush);
 
+    display.calculateNormals();
     for (int i = 0; i < display.faceCount; i++) {
         int v1 = display.objFaces[i].vertex[0];
         int v2 = display.objFaces[i].vertex[1];
         int v3 = display.objFaces[i].vertex[2];
 
-        std::cout << "1: " << v1 << "2: " << v2 << "3: " << v3 << std::endl;
+        if (display.objFaces[i].normal[0] * (display.obj->get(0, v1) - c->x) + display.objFaces[i].normal[1] * (display.obj->get(1, v1) - c->y) + display.objFaces[i].normal[2] * (display.obj->get(2, v1) - c->z) > 0.0f) {
 
-        MoveToEx(hdc, display.obj->get(0, v1), display.obj->get(1, v1), NULL);
-        LineTo(hdc, display.obj->get(0, v2), display.obj->get(1, v2));
-        LineTo(hdc, display.obj->get(0, v3), display.obj->get(1, v3));
-        LineTo(hdc, display.obj->get(0, v1), display.obj->get(1, v1));
+            MoveToEx(hdc, display.obj->get(0, v1), display.obj->get(1, v1), NULL);
+            LineTo(hdc, display.obj->get(0, v2), display.obj->get(1, v2));
+            LineTo(hdc, display.obj->get(0, v3), display.obj->get(1, v3));
+            LineTo(hdc, display.obj->get(0, v1), display.obj->get(1, v1));
+        }
     }
 
 
@@ -122,32 +64,35 @@ BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, GameObject& display) {
 }
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, INT nCmdShow) {
-	const wchar_t wndName[] = L"Test";
-    
+    const wchar_t wndName[] = L"Test";
+
     WNDCLASSEX wnd = {};
 
     wnd.lpfnWndProc = wProc;
     wnd.hInstance = hInstance;
     wnd.lpszClassName = wndName;
     wnd.cbSize = sizeof(WNDCLASSEX);
-    
+
     RegisterClassEx(&wnd);
 
     HWND hwnd = CreateWindowEx(
-    0,
-    wndName,
-    wndName,
-    WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT,
-    CW_USEDEFAULT,
-    CW_USEDEFAULT,
-    CW_USEDEFAULT,
-    NULL,
-    NULL,
-    hInstance,
-    NULL
+        0,
+        wndName,
+        wndName,
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        NULL,
+        NULL,
+        hInstance,
+        NULL
     );
-    
+
+    RECT rect = {};
+    GetClientRect(hwnd, &rect);
+    Camera cam(rect.right, rect.bottom);
 
     if (hwnd == NULL)
     {
@@ -155,22 +100,22 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     ShowWindow(hwnd, nCmdShow);
-
-
+    c = &cam;
 
     FILE* fDummy;
     AllocConsole();
     freopen_s(&fDummy, "CONOUT$", "w", stdout);
 
-    
+
     MSG msg = { };
     SetTimer(hwnd, 0, 50, NULL);
     while (GetMessage(&msg, hwnd, 0, 0) != 0)
-    {   
+    {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
 
     }
+
     return false;
 }
 
@@ -179,11 +124,22 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     switch (msg)
     {
-        case WM_CLOSE:
+        case WM_KEYDOWN:
         {
-            std::cout << "Test" << std::endl;
-            DestroyWindow(hwnd);
-            PostQuitMessage(0);
+            if ((wchar_t)wParam == 'W') keys[0] = true;
+            if ((wchar_t)wParam == 'S') keys[2] = true;
+            if ((wchar_t)wParam == 'A') keys[1] = true;
+            if ((wchar_t)wParam == 'D') keys[3] = true;
+
+            return true;
+        }
+        case WM_KEYUP:
+        {
+            if ((wchar_t)wParam == 'W') keys[0] = false;
+            if ((wchar_t)wParam == 'S') keys[2] = false;
+            if ((wchar_t)wParam == 'A') keys[1] = false;
+            if ((wchar_t)wParam == 'D') keys[3] = false;
+
             return true;
         }
         case WM_LBUTTONDOWN:
@@ -209,63 +165,34 @@ LRESULT CALLBACK wProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             RECT client = {};
             GetClientRect(hwnd, &client);
 
-            std::filesystem::path cwd = std::filesystem::current_path() / "src" / "models";
+            std::filesystem::path cwd = std::filesystem::current_path() / "models";
             std::filesystem::path cubeFile = cwd / "teapot.obj";
 
             GameObject testCube(cubeFile.string());
-            mTranslate(*testCube.obj, -0.5, -0.5, 0.5);
-            mRotate(*testCube.obj, 0, 180 * ts, 0);
-            mTranslate(*testCube.obj, 0, 0, -7);
-            projectToScreen(*testCube.obj, client.right, client.bottom);
-
-            Matrix cube(4, 8);
-            cube.set(0, 0) = 0; cube.set(1, 0) = 0; cube.set(2, 0) = 0; cube.set(3, 0) = 1;
-            cube.set(0, 1) = 1; cube.set(1, 1) = 0; cube.set(2, 1) = 0; cube.set(3, 1) = 1;
-            cube.set(0, 2) = 0; cube.set(1, 2) = 1; cube.set(2, 2) = 0; cube.set(3, 2) = 1; 
-            cube.set(0, 3) = 0; cube.set(1, 3) = 0; cube.set(2, 3) = 1; cube.set(3, 3) = 1;
-            cube.set(0, 4) = 1; cube.set(1, 4) = 1; cube.set(2, 4) = 0; cube.set(3, 4) = 1;
-            cube.set(0, 5) = 1; cube.set(1, 5) = 0; cube.set(2, 5) = 1; cube.set(3, 5) = 1;
-            cube.set(0, 6) = 0; cube.set(1, 6) = 1; cube.set(2, 6) = 1; cube.set(3, 6) = 1;
-            cube.set(0, 7) = 1; cube.set(1, 7) = 1; cube.set(2, 7) = 1; cube.set(3, 7) = 1;
-            
-
-
-            mTranslate(cube, -0.5, -0.5, 0.5);
-
-            Matrix cube2(4, 8);
-            Matrix cube3(4, 8);
-            copyMatrixContents(cube, cube2);
-            copyMatrixContents(cube, cube3);
-
-            mRotate(cube, 90 * ts, 0, 0);
-            mRotate(cube2, 0, 90 * ts, 0);
-            mRotate(cube3, 0, 0, 90 * ts);
-
-            mTranslate(cube, 0, 0, -3);
-            mTranslate(cube2, -2, 0, -3);
-            mTranslate(cube3, 2, 0, -3);
-
-            projectToScreen(cube, client.right, client.bottom);
-            projectToScreen(cube2, client.right, client.bottom);
-            projectToScreen(cube3, client.right, client.bottom);
-
+            mRotate(*testCube.obj, 0, 100 * ts, 0);
+            mTranslate(*testCube.obj, 0, -3, 5);
+            c->projectToScreen(*testCube.obj, client.right, client.bottom);
 
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
-            FillRect(hdc, &ps.rcPaint, CreateSolidBrush(colour::white));
+            FillRect(hdc, &ps.rcPaint, CreateSolidBrush(colour::black));
+            SelectObject(hdc, CreatePen(0, 1, colour::white));
 
             paint(hwnd, hdc, ps, testCube);
-            //paint(hwnd, hdc, ps, cube);
-            //paint(hwnd, hdc, ps, cube2);
-            //paint(hwnd, hdc, ps, cube3);
 
             EndPaint(hwnd, &ps);
             return true;
         }
         case WM_TIMER:
         {   
-            ts += 0.05f;
+            ts += 0.1f;
+            if (keys[0]) c->z += 0.1;
+            if (keys[1]) c->x -= 0.1;
+            if (keys[2]) c->z -= 0.1;
+            if (keys[3]) c->x += 0.1;
+
             InvalidateRect(hwnd, NULL, true);
+
             return true;
         }
         default:
