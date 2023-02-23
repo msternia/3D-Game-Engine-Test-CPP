@@ -143,7 +143,6 @@ Camera::Camera(int scW, int scH) : projection(4, 4), x(0), y(0), z(0) {
 	projection.set(3, 2) = -(fFar * fNear) / (fFar - fNear);
 	projection.set(3, 3) = 0.0f;
 
-
 }
 
 
@@ -159,6 +158,7 @@ bool Camera::projectToScreen(Matrix& m, int scW, int scH) {
 
 	Matrix cam(4, 4);
 	copyMatrixContents(projection, cam);
+
 
 	mTranslate(cam, -x, -y, 0);
 	cam.set(3, 2) += z;
@@ -183,4 +183,5 @@ bool Camera::projectToScreen(Matrix& m, int scW, int scH) {
 
 	mScale(out, 0.5 * scW, 0.5 * scH, 1);
 	return copyMatrixContents(out, m);
+
 }

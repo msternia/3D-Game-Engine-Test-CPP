@@ -50,7 +50,7 @@ BOOL paint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, GameObject& display) {
         int v2 = display.objFaces[i].vertex[1];
         int v3 = display.objFaces[i].vertex[2];
 
-        if (display.objFaces[i].normal[0] * (display.obj->get(0, v1) - c->x) + display.objFaces[i].normal[1] * (display.obj->get(1, v1) - c->y) + display.objFaces[i].normal[2] * (display.obj->get(2, v1) - c->z) > 0.0f) {
+        if (display.objFaces[i].normal[0] * (display.obj->get(0, v1) - c->x) + display.objFaces[i].normal[1] * (display.obj->get(1, v1) - c->y) + display.objFaces[i].normal[2] * (display.obj->get(2, v1) + c->z) > 0.0f) {
 
             MoveToEx(hdc, display.obj->get(0, v1), display.obj->get(1, v1), NULL);
             LineTo(hdc, display.obj->get(0, v2), display.obj->get(1, v2));
